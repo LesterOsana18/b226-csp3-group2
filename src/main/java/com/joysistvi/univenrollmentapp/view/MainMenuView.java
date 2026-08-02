@@ -83,7 +83,7 @@ public class MainMenuView {
 
             case 1 -> studentView.displayMenu(input, currentUser.getId());
 
-            case 2 -> courseView.displayMenu(input);
+            case 2 -> courseView.displayMenu();
 
             case 3 -> departmentView.displayMenu(input);
 
@@ -117,7 +117,7 @@ public class MainMenuView {
 
             case 1 -> studentView.displayMenu(input, currentUser.getId());
 
-            case 2 -> courseView.displayMenu(input);
+            case 2 -> courseView.displayMenu();
 
             case 3 -> enrollmentView.displayMenu(input);
 

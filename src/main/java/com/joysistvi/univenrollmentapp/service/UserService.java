@@ -18,7 +18,7 @@ public interface UserService {
     User login(String username, String password);
 
     // Register a new user
-    boolean register(User user);
+    User register(User user);
 
     // Update an existing user
     boolean updateUser(User user);

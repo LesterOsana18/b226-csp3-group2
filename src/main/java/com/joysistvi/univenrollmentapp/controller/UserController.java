@@ -39,8 +39,7 @@ public class UserController {
     }
 
     // Register a new user
-    public boolean register(User user) {
-        return userService.register(user);
+    public User register(User user) { return userService.register(user);
     }
 
     // Update a user

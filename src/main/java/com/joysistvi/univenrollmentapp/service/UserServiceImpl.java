@@ -54,17 +54,16 @@ public class UserServiceImpl implements UserService {
 
     // Register a new user
     @Override
-    public boolean register(User user) {
+    public User register(User user) {
 
-        if (userRepository.usernameExists(user.getUsername())) {
-            return false;
+        if(userRepository.usernameExists(user.getUsername())){
+            return null;
         }
 
         user.setPassword(
                 PasswordUtils.hashPassword(user.getPassword()));
 
         return userRepository.save(user);
-
     }
 
     // Update an existing user

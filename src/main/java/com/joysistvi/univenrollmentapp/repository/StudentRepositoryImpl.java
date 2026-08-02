@@ -324,4 +324,23 @@ public class StudentRepositoryImpl implements StudentRepository {
         return false;
 
     }
+    @Override
+    public int getNextStudentId() {
+
+        String sql = "SELECT IFNULL(MAX(id),0)+1 FROM students";
+
+        try(Connection connection = dbConnection.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet rs = statement.executeQuery()) {
+
+            if(rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+
+        return 1;
+    }
 }

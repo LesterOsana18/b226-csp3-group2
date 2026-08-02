@@ -74,7 +74,6 @@ CREATE TABLE courses (
     course_name VARCHAR(100) NOT NULL,
     units TINYINT UNSIGNED NOT NULL,
     department_id INT NOT NULL,
-    is_archived BOOLEAN NOT NULL DEFAULT FALSE,
 
     is_archived BOOLEAN NOT NULL DEFAULT FALSE,
     archived_at TIMESTAMP NULL,

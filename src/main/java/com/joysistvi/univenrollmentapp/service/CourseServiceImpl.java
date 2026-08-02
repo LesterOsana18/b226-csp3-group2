@@ -6,49 +6,62 @@ import com.joysistvi.univenrollmentapp.model.Course;
 import com.joysistvi.univenrollmentapp.repository.CourseRepository;
 
 // Service Implementation
-// Implements the business logic for Course management
+// Implements the business logic for course management
 public class CourseServiceImpl implements CourseService {
 
     // Dependency Injection
-    private final CourseRepository repository;
+    private final CourseRepository courseRepository;
 
     // Constructor
-    public CourseServiceImpl(CourseRepository repository) {
-        this.repository = repository;
+    public CourseServiceImpl(CourseRepository courseRepository) {
+        this.courseRepository = courseRepository;
     }
 
+    // Retrieve all courses
     @Override
     public List<Course> getAllCourses() {
-        return repository.getAllCourses();
+        return courseRepository.getAllCourses();
     }
 
+    // Retrieve archived courses
     @Override
     public List<Course> getArchivedCourses() {
-        return repository.getArchivedCourses();
+        return courseRepository.getArchivedCourses();
     }
 
+    // Retrieve a course by ID
     @Override
-    public boolean save(Course course) {
-        return repository.save(course);
+    public Course getCourseById(int id) {
+        return courseRepository.getCourseById(id);
     }
 
+    // Create a new course
     @Override
-    public boolean update(int id, Course course) {
-        return repository.update(course);
+    public boolean createCourse(Course course) {
+        return courseRepository.createCourse(course);
     }
 
+    // Update an existing course
     @Override
-    public boolean archive(int id) {
-        return repository.archive(id);
+    public boolean updateCourse(Course course) {
+        return courseRepository.updateCourse(course);
     }
 
+    // Archive a course
     @Override
-    public boolean restore(int id) {
-        return repository.restore(id);
+    public boolean archiveCourse(int id) {
+        return courseRepository.archiveCourse(id);
     }
 
+    // Restore an archived course
     @Override
-    public boolean delete(int id) {
-        return repository.delete(id);
+    public boolean restoreCourse(int id) {
+        return courseRepository.restoreCourse(id);
+    }
+
+    // Permanently delete a course
+    @Override
+    public boolean deleteCourse(int id) {
+        return courseRepository.deleteCourse(id);
     }
 }

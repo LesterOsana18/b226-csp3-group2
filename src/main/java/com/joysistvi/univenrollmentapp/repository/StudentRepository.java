@@ -36,4 +36,6 @@ public interface StudentRepository {
 
     // Check if a student number already exists
     boolean studentNumberExists(String studentNumber);
+
+    int getNextStudentId();
 }

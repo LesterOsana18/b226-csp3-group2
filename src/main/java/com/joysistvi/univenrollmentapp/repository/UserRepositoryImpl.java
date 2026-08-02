@@ -94,30 +94,50 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public boolean save(User user) {
+    public User save(User user) {
 
         String sql = """
-            INSERT INTO users (username, password, role)
-            VALUES (?, ?, ?)
-            """;
+        INSERT INTO users(username,password,role)
+        VALUES(?,?,?)
+        """;
 
-        try (Connection connection = dbConnection.getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql)) {
+        try(
+                Connection connection = dbConnection.getConnection();
 
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getPassword());
-            statement.setString(3, user.getRole().name());
+                PreparedStatement statement =
+                        connection.prepareStatement(
+                                sql,
+                                PreparedStatement.RETURN_GENERATED_KEYS
+                        );
+        ){
 
-            return statement.executeUpdate() > 0;
+            statement.setString(1,user.getUsername());
+            statement.setString(2,user.getPassword());
+            statement.setString(3,user.getRole().name());
 
-        } catch (SQLException e) {
+            int affected = statement.executeUpdate();
 
-            System.out.println("Database Error: " + e.getMessage());
+            if(affected > 0){
+
+                ResultSet keys = statement.getGeneratedKeys();
+
+                if(keys.next()){
+
+                    user.setId(keys.getInt(1));
+
+                    return user;
+
+                }
+
+            }
+
+        }catch(SQLException e){
+
+            System.out.println("Database Error: "+e.getMessage());
 
         }
 
-        return false;
-
+        return null;
     }
 
     @Override

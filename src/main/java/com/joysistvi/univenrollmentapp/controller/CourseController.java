@@ -2,6 +2,7 @@ package com.joysistvi.univenrollmentapp.controller;
 
 import java.util.List;
 
+// Import necessary classes
 import com.joysistvi.univenrollmentapp.model.Course;
 import com.joysistvi.univenrollmentapp.service.CourseService;
 
@@ -17,7 +18,7 @@ public class CourseController {
         this.courseService = courseService;
     }
 
-    // Retrieve all active courses
+    // Retrieve all courses
     public List<Course> getAllCourses() {
         return courseService.getAllCourses();
     }
@@ -27,55 +28,33 @@ public class CourseController {
         return courseService.getArchivedCourses();
     }
 
+    // Retrieve a course by ID
+    public Course getCourseById(int id) {
+        return courseService.getCourseById(id);
+    }
+
     // Create a new course
-    public boolean createCourse(
-            String courseCode,
-            String courseName,
-            int units,
-            int departmentId) {
-
-        Course course = new Course(
-                0,
-                courseCode,
-                courseName,
-                units,
-                departmentId);
-
-        return courseService.save(course);
-
+    public boolean createCourse(Course course) {
+        return courseService.createCourse(course);
     }
 
     // Update an existing course
-    public boolean updateCourse(
-            int id,
-            String courseCode,
-            String courseName,
-            int units,
-            int departmentId) {
-
-        Course course = new Course(
-                id,
-                courseCode,
-                courseName,
-                units,
-                departmentId);
-
-        return courseService.update(id, course);
-
+    public boolean updateCourse(Course course) {
+        return courseService.updateCourse(course);
     }
 
     // Archive a course
     public boolean archiveCourse(int id) {
-        return courseService.archive(id);
+        return courseService.archiveCourse(id);
     }
 
     // Restore an archived course
     public boolean restoreCourse(int id) {
-        return courseService.restore(id);
+        return courseService.restoreCourse(id);
     }
 
     // Permanently delete a course
     public boolean deleteCourse(int id) {
-        return courseService.delete(id);
+        return courseService.deleteCourse(id);
     }
 }

@@ -51,7 +51,10 @@ public class UserView {
             System.out.println("Username, password, and role are required.");
             return;
         }
-        if (controller.register(new User(username, password, role))) {
+        User registeredUser = controller.register(
+                new User(username, password, role));
+
+        if (registeredUser != null) {
             System.out.println("User created successfully.");
         } else {
             System.out.println("Failed to create user. The username may already exist.");

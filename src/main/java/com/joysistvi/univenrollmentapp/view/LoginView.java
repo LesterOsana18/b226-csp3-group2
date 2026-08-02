@@ -21,17 +21,22 @@ public class LoginView {
     // Dependency Injection
     private final UserController userController;
 
+    private final StudentRegistrationView studentRegistrationView;
+
     // Scanner
     private final Scanner input;
 
     // Constructor
     public LoginView(UserController userController,
+                     StudentRegistrationView studentRegistrationView,
                      Scanner input) {
 
         this.userController = userController;
+        this.studentRegistrationView = studentRegistrationView;
         this.input = input;
 
     }
+
 
     // Display Login Menu
     public boolean run() {
@@ -186,19 +191,24 @@ public class LoginView {
 
         }
 
-        User user =
+        User newUser =
                 new User(
                         username,
                         password,
                         Role.STUDENT);
 
-        if (userController.register(user)) {
+        User registeredUser =
+                userController.register(newUser);
+
+        if (registeredUser != null) {
 
             MessagePrinter.success(
                     "Registration successful!");
 
             MessagePrinter.info(
-                    "Your account has been created as a STUDENT account.");
+                    "Please complete your Student Profile.");
+
+            studentRegistrationView.registerStudent(registeredUser);
 
         } else {
 

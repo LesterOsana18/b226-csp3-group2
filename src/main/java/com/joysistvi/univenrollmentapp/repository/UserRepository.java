@@ -18,7 +18,7 @@ public interface UserRepository {
     User findByUsername(String username);
 
     // Insert a new user
-    boolean save(User user);
+    User save(User user);
 
     // Update an existing user
     boolean update(User user);

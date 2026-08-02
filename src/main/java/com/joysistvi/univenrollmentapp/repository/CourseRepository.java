@@ -8,28 +8,27 @@ import com.joysistvi.univenrollmentapp.model.Course;
 // Defines the database operations for Course objects
 public interface CourseRepository {
 
-    // Retrieve all active courses
+    // Retrieve all courses
     List<Course> getAllCourses();
 
-    // Retrieve all archived courses
+    // Retrieve archived courses
     List<Course> getArchivedCourses();
 
     // Retrieve a course by ID
-    Course findById(int id);
+    Course getCourseById(int id);
 
-    // Insert a new course
-    boolean save(Course course);
+    // Create a new course
+    boolean createCourse(Course course);
 
     // Update an existing course
-    boolean update(Course course);
+    boolean updateCourse(Course course);
 
     // Archive a course
-    boolean archive(int id);
+    boolean archiveCourse(int id);
 
     // Restore an archived course
-    boolean restore(int id);
+    boolean restoreCourse(int id);
 
     // Permanently delete a course
-    boolean delete(int id);
-
+    boolean deleteCourse(int id);
 }

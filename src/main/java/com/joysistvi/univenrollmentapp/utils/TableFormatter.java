@@ -111,6 +111,16 @@ public final class TableFormatter {
 
     }
 
+    // Prints a simple divider line
+    public static void printDivider() {
+        printDivider(80);
+    }
+
+    // Specifies the length of the divider line
+    public static void printDivider(int length) {
+        System.out.println("-".repeat(length));
+    }
+
     // Prints total number of records
     public static void printTotalRecords(
             int total) {
@@ -125,4 +135,5 @@ public final class TableFormatter {
         MessagePrinter.info("No records found.");
 
     }
+
 }

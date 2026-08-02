@@ -109,12 +109,20 @@ public final class App {
 
             StudentView studentView =
                     new StudentView(studentController);
+            StudentRegistrationView studentRegistrationView =
+                    new StudentRegistrationView(
+                            INPUT,
+                            studentController,
+                            departmentController);
 
-            CourseView courseView =
-                    new CourseView(
-                            courseController,
-                            departmentController,
-                            prerequisiteController);
+            Scanner scanner = new Scanner(System.in);
+
+            CourseView courseView = new CourseView(
+                    scanner,
+                    courseController,
+                    departmentController,
+                    prerequisiteController
+            );
 
             DepartmentView departmentView =
                     new DepartmentView(departmentController);
@@ -144,8 +152,12 @@ public final class App {
                             userView,
                             prerequisiteView);
 
+
             LoginView loginView =
-                    new LoginView(userController, INPUT);
+                    new LoginView(
+                            userController,
+                            studentRegistrationView,
+                            INPUT);
 
             while (true) {
 

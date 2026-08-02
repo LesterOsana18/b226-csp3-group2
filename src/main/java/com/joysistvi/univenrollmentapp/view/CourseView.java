@@ -1,225 +1,241 @@
 package com.joysistvi.univenrollmentapp.view;
 
-import com.joysistvi.univenrollmentapp.config.DbConnection;
+import java.util.List;
+import java.util.Scanner;
+
 import com.joysistvi.univenrollmentapp.controller.CourseController;
 import com.joysistvi.univenrollmentapp.controller.DepartmentController;
 import com.joysistvi.univenrollmentapp.controller.PrerequisiteController;
 import com.joysistvi.univenrollmentapp.model.Course;
 import com.joysistvi.univenrollmentapp.model.Department;
-import com.joysistvi.univenrollmentapp.repository.CourseRepositoryImpl;
-import com.joysistvi.univenrollmentapp.repository.DepartmentRepositoryImpl;
-import com.joysistvi.univenrollmentapp.repository.PrerequisiteRepositoryImpl;
-import com.joysistvi.univenrollmentapp.service.CourseServiceImpl;
-import com.joysistvi.univenrollmentapp.service.DepartmentServiceImpl;
-import com.joysistvi.univenrollmentapp.service.PrerequisiteServiceImpl;
+import com.joysistvi.univenrollmentapp.utils.ConsoleUtils;
+import com.joysistvi.univenrollmentapp.utils.HeaderPrinter;
+import com.joysistvi.univenrollmentapp.utils.InputValidator;
+import com.joysistvi.univenrollmentapp.utils.MenuPrinter;
+import com.joysistvi.univenrollmentapp.utils.MessagePrinter;
 import com.joysistvi.univenrollmentapp.utils.TableFormatter;
-import java.util.List;
-import java.util.Scanner;
 
+// View Class
+// Handles user interactions related to courses
 public class CourseView {
 
-    private Scanner input;
+    // Create Scanner object for user input
+    private final Scanner input;
 
-    private final CourseController controller;
+    // Controllers for handling business logic
+    private final CourseController courseController;
     private final DepartmentController departmentController;
     private final PrerequisiteController prerequisiteController;
 
-    public CourseView() {
-        this(
-                new CourseController(
-                        new CourseServiceImpl(
-                                new CourseRepositoryImpl(new DbConnection()))),
-                new DepartmentController(
-                        new DepartmentServiceImpl(
-                                new DepartmentRepositoryImpl(new DbConnection()))),
-                new PrerequisiteController(
-                        new PrerequisiteServiceImpl(
-                                new PrerequisiteRepositoryImpl(new DbConnection()))));
-    }
-
+    // Constructor
     public CourseView(
-            CourseController controller,
+            Scanner input,
+            CourseController courseController,
             DepartmentController departmentController,
             PrerequisiteController prerequisiteController) {
 
-        this.controller = controller;
+        this.input = input;
+        this.courseController = courseController;
         this.departmentController = departmentController;
         this.prerequisiteController = prerequisiteController;
 
     }
 
-    public void displayMenu(Scanner input) {
+    // Displays the main menu for course management
+    public void displayMenu() {
 
-        this.input = input;
+        boolean back = false;
 
-        System.out.println("===== Course Management =====");
-        System.out.println("1. View All Courses");
-        System.out.println("2. Create Course");
-        System.out.println("3. Update Course");
-        System.out.println("4. Archive Course");
-        System.out.println("5. View Archived Courses");
-        System.out.println("6. Manage Prerequisites");
-        System.out.println("0. Back");
-        System.out.print("Enter choice: ");
+        while (!back) {
 
-        switch (readInt()) {
-            case 1 -> displayAllCourses();
-            case 2 -> createCourse();
-            case 3 -> updateCourse();
-            case 4 -> archiveCourse();
-            case 5 -> displayArchivedCourses();
-            case 6 -> new PrerequisiteView(prerequisiteController, controller).displayMenu(input);
-            case 0 -> {
+            HeaderPrinter.printHeader("Course Management");
+
+            MenuPrinter.printMenu(
+                    "COURSE MANAGEMENT",
+                    "Back",
+                    "View All Courses",
+                    "Create Course",
+                    "Update Course",
+                    "Archive Course",
+                    "View Archived Courses",
+                    "Manage Prerequisites");
+
+            int choice = InputValidator.readMenuChoice(input, 0, 6);
+
+            switch (choice) {
+
+                case 1 -> displayAllCourses();
+
+                case 2 -> createCourse();
+
+                case 3 -> updateCourse();
+
+                case 4 -> archiveCourse();
+
+                case 5 -> displayArchivedCourses();
+
+                case 6 -> new PrerequisiteView(
+                        prerequisiteController,
+                        courseController
+                ).displayMenu(input);
+                case 0 -> back = true;
+
             }
-            default -> System.out.println("Invalid menu option.");
+
         }
 
     }
 
-    public void displayAllCourses() {
+    // Displays all courses in a formatted table
+    private void displayAllCourses() {
 
-        printCourses(
-                controller.getAllCourses(),
-                "active courses");
+        printCourses(courseController.getAllCourses());
 
-    }
-
-    public void displayArchivedCourses() {
-
-        printCourses(
-                controller.getArchivedCourses(),
-                "archived courses");
+        ConsoleUtils.pressEnterToContinue(input);
 
     }
 
+    // Displays archived courses in a formatted table
+    private void displayArchivedCourses() {
+
+        printCourses(courseController.getArchivedCourses());
+
+        ConsoleUtils.pressEnterToContinue(input);
+
+    }
+
+    // Creates a new course by collecting user input and calling the controller
     private void createCourse() {
 
-        CourseDetails details = readCourseDetails();
+        HeaderPrinter.printHeader("Create Course");
 
-        if (details == null) {
+        Course course = readCourse(0);
+
+        if (course == null) {
             return;
         }
 
-        if (controller.createCourse(
-                details.courseCode(),
-                details.courseName(),
-                details.units(),
-                details.departmentId())) {
+        if (courseController.createCourse(course)) {
 
-            System.out.println("Course created successfully.");
+            MessagePrinter.success("Course created successfully.");
 
         } else {
 
-            System.out.println(
-                    "Failed to create course. The course code may already exist or the department is invalid.");
+            MessagePrinter.error(
+                    "Failed to create course. Course code may already exist.");
 
         }
 
+        ConsoleUtils.pressEnterToContinue(input);
+
     }
 
+    // Updates an existing course by collecting user input and calling the controller
     private void updateCourse() {
 
-        displayAllCourses();
+        displayAllCoursesInline();
 
-        System.out.print("Enter course ID to update: ");
+        int id = InputValidator.readPositiveInt(
+                input,
+                "Course ID");
 
-        int id = readInt();
+        Course existingCourse =
+                courseController.getCourseById(id);
 
-        CourseDetails details = readCourseDetails();
+        if (existingCourse == null) {
 
-        if (details == null) {
+            MessagePrinter.error("Course not found.");
+
+            ConsoleUtils.pressEnterToContinue(input);
+
+            return;
+
+        }
+
+        HeaderPrinter.printHeader("Update Course");
+
+        Course updatedCourse = readCourse(id);
+
+        if (updatedCourse == null) {
             return;
         }
 
-        if (controller.updateCourse(
-                id,
-                details.courseCode(),
-                details.courseName(),
-                details.units(),
-                details.departmentId())) {
+        if (courseController.updateCourse(updatedCourse)) {
 
-            System.out.println("Course updated successfully.");
+            MessagePrinter.success("Course updated successfully.");
 
         } else {
 
-            System.out.println(
-                    "Failed to update course. Please check the course ID and entered details.");
+            MessagePrinter.error(
+                    "Failed to update course.");
 
         }
 
+        ConsoleUtils.pressEnterToContinue(input);
+
     }
 
+    // Archives a course by collecting user input and calling the controller
     private void archiveCourse() {
 
-        displayAllCourses();
+        displayAllCoursesInline();
 
-        System.out.print("Enter course ID to archive: ");
+        int id = InputValidator.readPositiveInt(
+                input,
+                "Course ID");
 
-        int id = readInt();
+        if (courseController.archiveCourse(id)) {
 
-        if (controller.archiveCourse(id)) {
-
-            System.out.println("Course archived successfully.");
+            MessagePrinter.success("Course archived successfully.");
 
         } else {
 
-            System.out.println(
-                    "Failed to archive course. Please check the course ID and try again.");
+            MessagePrinter.error(
+                    "Failed to archive course.");
 
         }
+
+        ConsoleUtils.pressEnterToContinue(input);
 
     }
 
-    private CourseDetails readCourseDetails() {
-
-        System.out.print("Enter course code: ");
+    // Reads course details from user input and returns a Course object
+    private Course readCourse(int id) {
 
         String courseCode =
-                input.nextLine().trim().toUpperCase();
-
-        System.out.print("Enter course name: ");
+                InputValidator.readRequiredString(
+                        input,
+                        "Course Code")
+                        .toUpperCase();
 
         String courseName =
-                input.nextLine().trim();
+                InputValidator.readRequiredString(
+                        input,
+                        "Course Name");
 
-        if (courseCode.isEmpty() || courseName.isEmpty()) {
+        int units =
+                InputValidator.readPositiveInt(
+                        input,
+                        "Units");
 
-            System.out.println(
-                    "Course code and course name cannot be empty.");
+        displayDepartments();
 
-            return null;
+        int departmentId =
+                InputValidator.readPositiveInt(
+                        input,
+                        "Department ID");
 
-        }
+        if (!departmentExists(departmentId)) {
 
-        System.out.print("Enter units: ");
-
-        int units = readInt();
-
-        if (units < 1 || units > 255) {
-
-            System.out.println(
-                    "Units must be between 1 and 255.");
-
-            return null;
-
-        }
-
-        printDepartments();
-
-        System.out.print("Enter department ID: ");
-
-        int departmentId = readInt();
-
-        if (!isActiveDepartment(departmentId)) {
-
-            System.out.println(
-                    "Please select an active department ID.");
+            MessagePrinter.error(
+                    "Invalid Department ID.");
 
             return null;
 
         }
 
-        return new CourseDetails(
+        return new Course(
+                id,
                 courseCode,
                 courseName,
                 units,
@@ -227,7 +243,8 @@ public class CourseView {
 
     }
 
-    private void printDepartments() {
+    // Displays all courses in a single line format
+    private void displayDepartments() {
 
         List<Department> departments =
                 departmentController.getAllDepartments();
@@ -240,39 +257,47 @@ public class CourseView {
 
         }
 
-        printDivider();
+        TableFormatter.printDivider();
 
         System.out.printf(
-                "%-5s %-30s%n",
+                "%-5s %-35s%n",
                 "ID",
-                "Department Name");
+                "Department");
 
-        printDivider();
+        TableFormatter.printDivider();
 
         for (Department department : departments) {
 
             System.out.printf(
-                    "%-5d %-30s%n",
+                    "%-5d %-35s%n",
                     department.getId(),
                     department.getDepartmentName());
 
         }
 
+        TableFormatter.printTotalRecords(departments.size());
+
     }
 
-    private boolean isActiveDepartment(int departmentId) {
+    // Checks if a department with the given ID exists
+    private boolean departmentExists(int id) {
 
         return departmentController
                 .getAllDepartments()
                 .stream()
-                .anyMatch(department ->
-                        department.getId() == departmentId);
+                .anyMatch(department -> department.getId() == id);
 
     }
 
-    private void printCourses(
-            List<Course> courses,
-            String label) {
+    // Displays all courses in a single line format
+    private void displayAllCoursesInline() {
+
+        printCourses(courseController.getAllCourses());
+
+    }
+
+    // Prints a list of courses in a formatted table
+    private void printCourses(List<Course> courses) {
 
         if (courses.isEmpty()) {
 
@@ -282,22 +307,22 @@ public class CourseView {
 
         }
 
-        printDivider();
+        TableFormatter.printDivider();
 
         System.out.printf(
-                "%-5s %-12s %-30s %-7s %-30s%n",
+                "%-5s %-12s %-35s %-7s %-30s%n",
                 "ID",
                 "Code",
                 "Course Name",
                 "Units",
                 "Department");
 
-        printDivider();
+        TableFormatter.printDivider();
 
         for (Course course : courses) {
 
             System.out.printf(
-                    "%-5d %-12s %-30s %-7d %-30s%n",
+                    "%-5d %-12s %-35s %-7d %-30s%n",
                     course.getId(),
                     course.getCourseCode(),
                     course.getCourseName(),
@@ -308,41 +333,6 @@ public class CourseView {
 
         TableFormatter.printTotalRecords(courses.size());
 
-    }
-
-    private int readInt() {
-
-        while (!input.hasNextInt()) {
-
-            System.out.println(
-                    "Please enter a valid number.");
-
-            input.nextLine();
-
-            System.out.print("Choice: ");
-
-        }
-
-        int value = input.nextInt();
-
-        input.nextLine();
-
-        return value;
-
-    }
-
-    private void printDivider() {
-
-        System.out.println(
-                "--------------------------------------------------------------------------------------------------------");
-
-    }
-
-    private record CourseDetails(
-            String courseCode,
-            String courseName,
-            int units,
-            int departmentId) {
     }
 
 }

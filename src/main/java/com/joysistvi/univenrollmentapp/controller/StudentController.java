@@ -83,4 +83,13 @@ public class StudentController {
         return prerequisiteService.getAllPrerequisites();
     }
 
+    // Register a new student profile
+    public boolean registerStudent(Student student) {
+        return studentService.registerStudent(student);
+    }
+
+    public int getNextStudentId() {
+        return studentService.getNextStudentId();
+    }
+
 }
